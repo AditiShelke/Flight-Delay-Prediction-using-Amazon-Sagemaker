@@ -13,7 +13,7 @@ Delay status of the flight.
 
 ### Steps
 #### We use the XGBoost algorithm, a powerful gradient boosting technique, to train a binary classification model to predict flight delays due to weather. The model hyperparameters are tuned using SageMaker's HyperparameterTuner to optimize the performance.
-
+The LinearLearner estimator is used for binary classification tasks in this scenario because the project's objective is to predict whether a flight will be delayed due to weather or not. LinearLearner is a supervised learning algorithm that is particularly well-suited for binary classification problems, which involve predicting one of two possible classes (in this case, delay or no delay).
 # Evaluation 
 Model Evaluation: The trained model is evaluated on a test dataset, and various performance metrics, such as accuracy, precision, recall, F1 score, ROC curve, and confusion matrix, are calculated and displayed.
 
