@@ -1,19 +1,49 @@
-# Flight-Delay-Prediction-using-ML
+# Flight-Delay-Prediction-using-Amazon SageMaker
 ### Overview
-This project aims to improve the customer experience for flights that were delayed due to weather conditions for the busiest airports in the US. To achieve this, we have built a machine learning (ML) model using XGBoost to predict whether a flight will be delayed due to weather conditions. The model is trained on historical flight data collected by the Office of Airline Information, Bureau of Transportation Statistics (BTS), covering the years 2013 to 2018.
+Flight delays can lead to significant disruptions and inconvenience for both airlines and passengers. This project aims to develop a machine learning model that can accurately predict flight delays based on historical data and weather conditions.
+The model is trained on historical flight data collected by the Office of Airline Information, Bureau of Transportation Statistics (BTS), covering the years 2013 to 2018.
+The project uses Amazon SageMaker,XGBoost to train and deploy machine learning models for flight delay prediction.
 
 ### Dataset
-The dataset used for this project contains scheduled and actual departure and arrival times reported by certified US air carriers that account for at least 1 percent of domestic scheduled passenger revenues. The dataset includes the following information for each flight:
+The data used for this project includes historical flight information, weather data, and airline information contains scheduled and actual departure and arrival times reported by certified US air carriers.
+##### The dataset includes the following information for each flight:
+1. Date and time of departure and arrival.
+2. Origin and destination airports.
+3. Airline operating the flight.
 
-Date and time of departure and arrival.
-Origin and destination airports.
-Airline operating the flight.
-Flight distance.
-Delay status of the flight.
+The dataset contains the following columns:
+* Year: The year of the flight.
+* Quarter: The quarter of the year when the flight occurred.
+* Month: The month of the flight.
+* DayofMonth: The day of the month when the flight occurred.
+* DayOfWeek: The day of the week when the flight occurred.
+* FlightDate: The date of the flight.
+* Reporting_Airline: The airline reporting the flight delay.
+* Origin: The origin airport code.
+* OriginState: The state where the origin airport is located.
+* Dest: The destination airport code.
+* is_delay: Whether the flight was delayed (1) or not (0) due to weather conditions.
+* AirTime: The flight time (in minutes).
+* is_holiday: Whether the flight date is a holiday (1) or not (0).
+*....
 
-### Steps
+### Feature Engineering
+The data was preprocessed and feature engineering techniques were applied to enhance the predictive power of the model. The following additional features were added:
+
+1. Holidays: An indicator variable to mark flight dates that coincide with public holidays.
+2. Weather Conditions: Weather data, including wind speed, precipitation, snowfall, and temperature, were merged with the flight data based on airport codes.
+
+### Model Development
 #### We use the XGBoost algorithm, a powerful gradient boosting technique, to train a binary classification model to predict flight delays due to weather. The model hyperparameters are tuned using SageMaker's HyperparameterTuner to optimize the performance.
-The LinearLearner estimator is used for binary classification tasks in this scenario because the project's objective is to predict whether a flight will be delayed due to weather or not. LinearLearner is a supervised learning algorithm that is particularly well-suited for binary classification problems, which involve predicting one of two possible classes (in this case, delay or no delay).
+
+#### Usage
+To replicate the project and train the models, follow these steps:
+1. Prepare the data: The flight and weather data should be preprocessed and merged to create the dataset used for training.
+2. Feature engineering: Add the additional features, such as holidays and weather conditions, to enhance the model's predictive power.
+3. Model development: Train an initial XGBoost model on the dataset.
+4. Hyperparameter optimization: Perform hyperparameter tuning to find the best hyperparameters for the XGBoost model.
+5. Evaluation: Evaluate the performance of the models using various metrics and visualizations.
+   
 # Evaluation 
 Model Evaluation: The trained model is evaluated on a test dataset, and various performance metrics, such as accuracy, precision, recall, F1 score, ROC curve, and confusion matrix, are calculated and displayed.
 
