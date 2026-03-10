@@ -1,130 +1,101 @@
 import boto3
 import json
-from tools import get_weather_for_airport, get_all_airport_weather, get_model_metrics
+import re
+from tools import get_weather_for_airport, get_all_airport_weather, get_model_metrics, get_weather_forecast
+from datetime import datetime
 
 bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
 
-SYSTEM_PROMPT = """You are an expert flight delay analyst AI assistant with access to REAL live data tools.
-You have access to a machine learning model trained on 7 million flight records from 2018 BTS data.
-The model achieves ROC AUC of 0.732.
+AIRPORTS = ['JFK','LAX','ORD','ATL','DFW','DEN','SFO','SEA','MIA','BOS']
 
-When asked about weather at specific airports, ALWAYS use the weather tool to get real numbers.
-When asked about model performance, use the metrics tool.
+def extract_airport(text):
+    for a in AIRPORTS:
+        if a in text.upper():
+            return a
+    return None
 
-Key facts:
-- Airports tracked: JFK, LAX, ORD, ATL, DFW, DEN, SFO, SEA, MIA, BOS
-- Overall delay rate is ~19%
-- Summer and winter holidays have highest delays
-- Friday and Sunday are worst days for delays
-- ORD and ATL have highest delay rates due to hub congestion
-- High precipitation (>0.3in) correlates with ~35% higher delay rates
-- High winds (>25mph) correlate with ~20% higher delay rates
-- Snow causes the most severe delays
+def extract_date(text):
+    # Match patterns like March 15, 2026-03-15, Mar 15
+    patterns = [
+        r'(\d{4}-\d{2}-\d{2})',
+        r'(march|mar)\s+(\d{1,2})',
+        r'(april|apr)\s+(\d{1,2})',
+        r'(may)\s+(\d{1,2})',
+    ]
+    text_lower = text.lower()
+    month_map = {'january':'01','february':'02','march':'03','april':'04',
+                 'may':'05','june':'06','july':'07','august':'08',
+                 'september':'09','october':'10','november':'11','december':'12',
+                 'jan':'01','feb':'02','mar':'03','apr':'04','jun':'06',
+                 'jul':'07','aug':'08','sep':'09','oct':'10','nov':'11','dec':'12'}
+    
+    # Try YYYY-MM-DD first
+    m = re.search(r'(\d{4}-\d{2}-\d{2})', text)
+    if m:
+        return m.group(1)
+    
+    # Try Month DD
+    m = re.search(r'(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\s+(\d{1,2})', text_lower)
+    if m:
+        month = month_map[m.group(1)]
+        day   = m.group(2).zfill(2)
+        return f"2026-{month}-{day}"
+    return None
 
-Always cite the real data when you have it. Be specific with numbers."""
+SYSTEM_PROMPT = """You are an expert flight delay analyst AI assistant with access to REAL live data.
+You have been provided with actual weather forecast data above. Use these REAL numbers in your answer.
+Give specific delay probability estimates based on the weather data provided.
+Be direct and specific — give a percentage estimate for delay risk.
 
-TOOLS = [
-    {
-        "toolSpec": {
-            "name": "get_airport_weather",
-            "description": "Get real live weather data for a specific airport from the database. Use this when asked about weather at a specific airport.",
-            "inputSchema": {
-                "json": {
-                    "type": "object",
-                    "properties": {
-                        "airport_code": {
-                            "type": "string",
-                            "description": "3-letter airport code e.g. SEA, JFK, LAX"
-                        }
-                    },
-                    "required": ["airport_code"]
-                }
-            }
-        }
-    },
-    {
-        "toolSpec": {
-            "name": "get_all_weather",
-            "description": "Get current weather for all 10 tracked airports. Use when asked to compare airports or general weather overview.",
-            "inputSchema": {
-                "json": {
-                    "type": "object",
-                    "properties": {}
-                }
-            }
-        }
-    },
-    {
-        "toolSpec": {
-            "name": "get_metrics",
-            "description": "Get the latest ML model performance metrics.",
-            "inputSchema": {
-                "json": {
-                    "type": "object", 
-                    "properties": {}
-                }
-            }
-        }
-    }
-]
+Key correlations:
+- Wind >25mph → ~20% higher delay rate (base 19% → ~23%)
+- Precipitation >0.3in → ~35% higher delay rate (base 19% → ~26%)  
+- Snow any amount → severe delays possible (base 19% → 40%+)
+- Multiple bad factors → compound the risk
+- JFK, ORD, EWR historically highest delay airports (+5% base)
 
-def handle_tool_call(tool_name, tool_input):
-    if tool_name == 'get_airport_weather':
-        return get_weather_for_airport(tool_input.get('airport_code', ''))
-    elif tool_name == 'get_all_weather':
-        return get_all_airport_weather()
-    elif tool_name == 'get_metrics':
-        return get_model_metrics()
-    return "Unknown tool"
+Always give a specific delay probability percentage in your answer."""
 
 def ask_bedrock(question, chat_history=[]):
+    # Auto-inject forecast data if question mentions future date + airport
+    airport = extract_airport(question)
+    date    = extract_date(question)
+    
+    extra_context = ""
+    if airport and date:
+        forecast = get_weather_forecast(airport, date)
+        extra_context = f"\n\nREAL FORECAST DATA (use these numbers):\n{forecast}\n"
+    elif airport and any(word in question.lower() for word in ['tomorrow','next','forecast','will','going to']):
+        from datetime import timedelta
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        forecast = get_weather_forecast(airport, tomorrow)
+        extra_context = f"\n\nREAL FORECAST DATA (use these numbers):\n{forecast}\n"
+
     messages = []
     for h in chat_history:
         messages.append({
             "role": h["role"],
             "content": [{"text": h["content"]}]
         })
+    
+    full_question = question + extra_context
     messages.append({
         "role": "user",
-        "content": [{"text": question}]
+        "content": [{"text": full_question}]
     })
 
-    # Agentic loop — keep going until no more tool calls
-    while True:
-        response = bedrock.invoke_model(
-            modelId='amazon.nova-micro-v1:0',
-            body=json.dumps({
-                "messages": messages,
-                "system": [{"text": SYSTEM_PROMPT}],
-                "toolConfig": {"tools": TOOLS},
-                "inferenceConfig": {"maxTokens": 512, "temperature": 0.7}
-            })
-        )
+    response = bedrock.invoke_model(
+        modelId='amazon.nova-micro-v1:0',
+        body=json.dumps({
+            "messages": messages,
+            "system": [{"text": SYSTEM_PROMPT}],
+            "inferenceConfig": {"maxTokens": 512, "temperature": 0.7}
+        })
+    )
 
-        result = json.loads(response['body'].read())
-        stop_reason = result.get('stopReason', '')
-        content = result['output']['message']['content']
-
-        # Add assistant response to messages
-        messages.append({"role": "assistant", "content": content})
-
-        if stop_reason == 'tool_use':
-            # Handle tool calls
-            tool_results = []
-            for block in content:
-                if block.get('toolUse'):
-                    tool = block['toolUse']
-                    tool_result = handle_tool_call(tool['name'], tool.get('input', {}))
-                    tool_results.append({
-                        "toolResult": {
-                            "toolUseId": tool['toolUseId'],
-                            "content": [{"text": tool_result}]
-                        }
-                    })
-            messages.append({"role": "user", "content": tool_results})
-        else:
-            # Final response
-            for block in content:
-                if block.get('text'):
-                    return block['text']
-            return "I couldn't generate a response."
+    result  = json.loads(response['body'].read())
+    content = result['output']['message']['content']
+    for block in content:
+        if block.get('text'):
+            return re.sub(r'<thinking>.*?</thinking>', '', block['text'], flags=re.DOTALL).strip()
+    return "I couldn't generate a response."
