@@ -54,6 +54,18 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
 ├── tools.py        # RDS + S3 data query tools for AI
 └── README.md
 ```
+## Weather Forecast Integration
+
+- Integrated **OpenWeatherMap API** for 7-day weather forecasts
+- AI chatbot automatically detects airport + date from natural language
+- Provides specific delay probability % based on forecast conditions
+- Falls back to historical pattern estimates when forecast unavailable
+
+Example queries:
+- *"Will my JFK flight be delayed on March 15?"*
+- *"What's the delay risk for LAX tomorrow?"*
+- *"Compare delay risk between ORD and ATL this Friday"*
+EOF
 
 ## Key ML Decisions
 
