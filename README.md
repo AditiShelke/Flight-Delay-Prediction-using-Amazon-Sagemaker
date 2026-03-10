@@ -65,7 +65,7 @@ Example queries:
 - *"Will my JFK flight be delayed on March 15?"*
 - *"What's the delay risk for LAX tomorrow?"*
 - *"Compare delay risk between ORD and ATL this Friday"*
-EOF
+
 
 ## Key ML Decisions
 
