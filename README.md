@@ -1,18 +1,10 @@
-# ✈️ Real-Time Flight Delay Prediction Platform
+# Real-Time Flight Delay Prediction Platform
 
 ![AWS](https://img.shields.io/badge/AWS-SageMaker-orange) ![Python](https://img.shields.io/badge/Python-3.9-blue) ![XGBoost](https://img.shields.io/badge/Model-XGBoost-green) ![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-red)
 
 A production-grade MLOps platform that predicts flight delays in real-time using machine learning, live weather data, and a conversational AI assistant.
 
-## 🏗️ Architecture
-cat > ~/flight-dashboard/README.md << 'EOF'
-# ✈️ Real-Time Flight Delay Prediction Platform
-
-![AWS](https://img.shields.io/badge/AWS-SageMaker-orange) ![Python](https://img.shields.io/badge/Python-3.9-blue) ![XGBoost](https://img.shields.io/badge/Model-XGBoost-green) ![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-red)
-
-A production-grade MLOps platform that predicts flight delays in real-time using machine learning, live weather data, and a conversational AI assistant.
-
-## 🏗️ Architecture
+## Architecture
 ```
 Live Weather API → AWS Lambda → Amazon RDS (MySQL)
                                       ↓
@@ -36,14 +28,14 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
 - Hyperparameter tuning across 5 jobs via SageMaker Automatic Tuning
 - Handles class imbalance (19% delay rate) with dynamic scale_pos_weight
 
-## 🚀 Features
+## Features
 
 - **Real-time predictions** — input airline, route, date → get delay probability
 - **Live weather integration** — Lambda fetches daily weather for 10 major airports
 - **AI chatbot** — Bedrock Nova Micro answers questions using real RDS data as context
 - **Automated pipeline** — Lambda → S3 → SageMaker → EC2 dashboard
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -55,7 +47,7 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
 | AI Assistant | Amazon Bedrock (Nova Micro) |
 | Language | Python 3.9 |
 
-## 📁 Project Structure
+## Project Structure
 ```
 ├── app.py          # Streamlit dashboard
 ├── chatbot.py      # Bedrock AI assistant with tool use
@@ -63,18 +55,16 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
 └── README.md
 ```
 
-## 🔑 Key ML Decisions
+## Key ML Decisions
 
 - **Target**: ArrDel15 (15+ min late arrival) — binary classification
 - **Dropped leakage features**: DepDelay, CarrierDelay, WeatherDelay (known only after flight)
 - **Features**: Year, Quarter, Month, DayofMonth, DayOfWeek, Airline, Origin, Dest, AirTime, Distance, is_holiday
 - **Best hyperparameters**: max_depth=9, eta=0.132, gamma=1.95, subsample=0.727, num_round=200
 
-## 📸 Screenshots
+## Screenshots
 
-![Dashboard](screenshots/dashboard.png)
-![AI Chatbot](screenshots/chatbot.png)
 
-## ✍️ Author
+## Author
 
 **Aditi Shelke** — [LinkedIn](https://linkedin.com/in/aditi-shelke) | [GitHub](https://github.com/AditiShelke)
