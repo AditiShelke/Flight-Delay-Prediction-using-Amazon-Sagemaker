@@ -21,7 +21,7 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
                     Amazon Bedrock Nova Micro (AI Chatbot)
 ```
 
-## 📊 Model Performance
+## 📊 Model Performance based on version 1 of model (11 Features)
 
 | Metric | Score |
 |--------|-------|
