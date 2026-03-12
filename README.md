@@ -8,7 +8,7 @@ A production-grade MLOps platform that predicts flight delays in real-time using
 * Trained XGBoost models on 7M+ flight records (BTS 2018 data), achieving ROC AUC 0.875 through feature engineering inspired by recent academic research ( Zhou (George Mason, 2025) ), on delay propagation and aircraft rotation chains
 * Implemented hyperparameter tuning across 5 jobs using SageMaker Automatic Tuning, handling class imbalance (19% delay rate) with dynamic scale_pos_weight
 * Built an automated pipeline: AWS Lambda (live weather ingestion) → Amazon RDS → SageMaker (retraining) → EC2 (Streamlit dashboard)
-* Integrated Amazon Bedrock Nova Micro to create a conversational AI assistant that answers natural language queries using live RDS data as context—similar to how Spotify's recommendation systems might leverage user context
+* Integrated Amazon Bedrock Nova Micro to create a conversational AI assistant that answers natural language queries using live RDS data 
 
 ## Architecture
 ```
