@@ -33,7 +33,7 @@ BTS Flight Data → Amazon S3 → SageMaker XGBoost → Prediction Endpoint
 - Trained on **7M+ flight records** (BTS 2018 On-Time Performance Data)
 - Hyperparameter tuning across 5 jobs via SageMaker Automatic Tuning
 - Handles class imbalance (19% delay rate) with dynamic scale_pos_weight
-- Improved model ROC AUC from 0.732 → 0.875 by engineering delay propagation features (previous flight delay, turnaround time, tail number rotation chains) inspired by Zhou et al. 2025
+- Improved model ROC AUC from 0.732 → 0.875 (in version 2) Features 22 by engineering delay propagation features (previous flight delay, turnaround time, tail number rotation chains) inspired by Zhou et al. 2025
 
 ## Features
 
