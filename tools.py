@@ -1,10 +1,11 @@
+import os
 import pymysql
 import boto3
 import json
 
 RDS_HOST = 'flight-delay-db.ca522oasyz0w.us-east-1.rds.amazonaws.com'
 RDS_USER = 'admin'
-RDS_PASS = 'FlightDelay2026!'
+RDS_PASS = os.environ.get("RDS_PASS", "your-password-here")
 RDS_DB   = 'flightdelaydb'
 
 def get_weather_for_airport(airport_code):
@@ -66,7 +67,7 @@ def get_model_metrics():
 
 import urllib.request
 
-OWM_KEY = 'a4aab45a3caef73055dbc342adbf5412'
+OWM_KEY = os.environ.get("OWM_KEY", "your-api-key-here")
 
 AIRPORT_COORDS = {
     'JFK': (40.6413, -73.7781),
