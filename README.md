@@ -81,9 +81,3 @@ Example queries:
 - **Features**: Year, Quarter, Month, DayofMonth, DayOfWeek, Airline, Origin, Dest, AirTime, Distance, is_holiday
 - **Best hyperparameters**: max_depth=9, eta=0.132, gamma=1.95, subsample=0.727, num_round=200
 
-## Screenshots
-
-
-## Author
-
-**Aditi Shelke** — [LinkedIn](https://linkedin.com/in/aditi-shelke) | [GitHub](https://github.com/AditiShelke)
